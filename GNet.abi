@@ -2,13 +2,51 @@
 	{
 		"inputs": [
 			{
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "shard",
+				"type": "bytes32"
+			},
+			{
 				"internalType": "address",
-				"name": "_token",
+				"name": "pid",
+				"type": "address"
+			},
+			{
+				"internalType": "uint32",
+				"name": "role",
+				"type": "uint32"
+			},
+			{
+				"internalType": "uint32",
+				"name": "weight",
+				"type": "uint32"
+			},
+			{
+				"internalType": "string",
+				"name": "addr",
+				"type": "string"
+			}
+		],
+		"name": "createNode",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_feeToken",
 				"type": "address"
 			},
 			{
 				"internalType": "address",
-				"name": "_receiver",
+				"name": "_feeReceiver",
 				"type": "address"
 			},
 			{
@@ -28,6 +66,18 @@
 				"internalType": "address",
 				"name": "sender",
 				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "shard",
+				"type": "bytes32"
 			},
 			{
 				"indexed": true,
@@ -52,35 +102,28 @@
 				"internalType": "string",
 				"name": "addr",
 				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "shard",
-				"type": "string"
 			}
 		],
 		"name": "CreateNode",
 		"type": "event"
 	},
 	{
-		"anonymous": false,
 		"inputs": [
 			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "sender",
-				"type": "address"
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
 			},
 			{
-				"indexed": false,
-				"internalType": "string",
+				"internalType": "bytes32",
 				"name": "name",
-				"type": "string"
+				"type": "bytes32"
 			}
 		],
-		"name": "CreateShard",
-		"type": "event"
+		"name": "createShard",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"anonymous": false,
@@ -92,20 +135,113 @@
 				"type": "address"
 			},
 			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "name",
+				"type": "bytes32"
+			}
+		],
+		"name": "CreateShard",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "name",
+				"type": "bytes32"
+			}
+		],
+		"name": "createZone",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "pid",
+				"name": "sender",
 				"type": "address"
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
+				"internalType": "bytes32",
+				"name": "name",
+				"type": "bytes32"
+			}
+		],
+		"name": "CreateZone",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
 				"name": "shard",
-				"type": "string"
+				"type": "bytes32"
+			},
+			{
+				"internalType": "address",
+				"name": "pid",
+				"type": "address"
+			}
+		],
+		"name": "deleteNode",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "sender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "shard",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "pid",
+				"type": "address"
 			}
 		],
 		"name": "DeleteNode",
 		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "newApp",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
 	},
 	{
 		"anonymous": false,
@@ -140,6 +276,103 @@
 		"type": "event"
 	},
 	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_feeAmount",
+				"type": "uint256"
+			}
+		],
+		"name": "setFeeAmount",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_feeReceiver",
+				"type": "address"
+			}
+		],
+		"name": "setFeeReceiver",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_feeToken",
+				"type": "address"
+			}
+		],
+		"name": "setFeeToken",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "shard",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "address",
+				"name": "pid",
+				"type": "address"
+			},
+			{
+				"internalType": "uint32",
+				"name": "role",
+				"type": "uint32"
+			},
+			{
+				"internalType": "uint32",
+				"name": "weight",
+				"type": "uint32"
+			},
+			{
+				"internalType": "string",
+				"name": "addr",
+				"type": "string"
+			}
+		],
+		"name": "updateNode",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"anonymous": false,
 		"inputs": [
 			{
@@ -147,6 +380,18 @@
 				"internalType": "address",
 				"name": "sender",
 				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes32",
+				"name": "shard",
+				"type": "bytes32"
 			},
 			{
 				"indexed": true,
@@ -170,12 +415,6 @@
 				"indexed": false,
 				"internalType": "string",
 				"name": "addr",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "shard",
 				"type": "string"
 			}
 		],
@@ -202,70 +441,6 @@
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "pid",
-				"type": "address"
-			},
-			{
-				"internalType": "uint32",
-				"name": "role",
-				"type": "uint32"
-			},
-			{
-				"internalType": "uint32",
-				"name": "weight",
-				"type": "uint32"
-			},
-			{
-				"internalType": "string",
-				"name": "addr",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "shardName",
-				"type": "string"
-			}
-		],
-		"name": "createNode",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			}
-		],
-		"name": "createShard",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "pid",
-				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "shardName",
-				"type": "string"
-			}
-		],
-		"name": "deleteNode",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"inputs": [],
 		"name": "getAppList",
 		"outputs": [
@@ -281,9 +456,19 @@
 	{
 		"inputs": [
 			{
-				"internalType": "string",
-				"name": "shardName",
-				"type": "string"
+				"internalType": "address",
+				"name": "app",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "shard",
+				"type": "bytes32"
 			}
 		],
 		"name": "getNodeListByName",
@@ -320,23 +505,46 @@
 		"type": "function"
 	},
 	{
-		"inputs": [],
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "app",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "zone",
+				"type": "bytes32"
+			}
+		],
 		"name": "getShardList",
 		"outputs": [
 			{
-				"internalType": "string[]",
+				"internalType": "bytes32[]",
 				"name": "",
-				"type": "string[]"
+				"type": "bytes32[]"
 			}
 		],
 		"stateMutability": "view",
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "newApp",
-		"outputs": [],
-		"stateMutability": "nonpayable",
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "app",
+				"type": "address"
+			}
+		],
+		"name": "getZoneList",
+		"outputs": [
+			{
+				"internalType": "bytes32[]",
+				"name": "",
+				"type": "bytes32[]"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -350,98 +558,6 @@
 			}
 		],
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "renounceOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_feeAmount",
-				"type": "uint256"
-			}
-		],
-		"name": "setFeeAmount",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_receiver",
-				"type": "address"
-			}
-		],
-		"name": "setFeeReceiver",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_token",
-				"type": "address"
-			}
-		],
-		"name": "setFeeToken",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "pid",
-				"type": "address"
-			},
-			{
-				"internalType": "uint32",
-				"name": "role",
-				"type": "uint32"
-			},
-			{
-				"internalType": "uint32",
-				"name": "weight",
-				"type": "uint32"
-			},
-			{
-				"internalType": "string",
-				"name": "addr",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "shardName",
-				"type": "string"
-			}
-		],
-		"name": "updateNode",
-		"outputs": [],
-		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]
