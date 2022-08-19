@@ -21,9 +21,9 @@ library ERC20Helper {
 }
 
 contract GNet is Ownable {
-    address feeToken;
-    address feeReceiver;
-    uint feeAmount;
+    address private feeToken;
+    address private feeReceiver;
+    uint private feeAmount;
 
     struct Node{
         address pid;
@@ -32,124 +32,155 @@ contract GNet is Ownable {
         string addr;
     }
     
-    mapping(address => bool) appMap;
+    mapping(address => bool) private appMap;
     address[] public apps;
 
-    mapping(address => mapping(string => bool)) shardMap;
-    mapping(address => string[]) shards;
+    mapping(address => mapping(bytes32 => bool)) private zoneMap;
+    mapping(address => bytes32[]) zones;
 
-    mapping(address => mapping(string => mapping(address => uint))) nodeMap;
-    mapping(address => mapping(string => Node[])) nodes;
+    mapping(address => mapping(bytes32 => mapping(bytes32 => bool))) private shardMap;
+    mapping(address => mapping(bytes32 => bytes32[])) private shards;
 
-    constructor (address _token, address _receiver, uint _feeAmount) {
-        feeToken = _token;
-        feeReceiver = _receiver;
+    mapping(address => mapping(bytes32 => mapping(bytes32 => mapping(address => uint)))) private nodeMap;
+    mapping(address => mapping(bytes32 => mapping(bytes32 => Node[]))) private nodes;
+
+    constructor (address _feeToken, address _feeReceiver, uint _feeAmount) {
+        feeToken = _feeToken;
+        feeReceiver = _feeReceiver;
         feeAmount = _feeAmount;
     }
 
     event NewApp(address indexed sender);
-    event CreateShard(address indexed sender, string name);
-    event CreateNode(address indexed sender, address indexed pid, uint32 role, uint32 weight, string addr, string shard);
-    event UpdateNode(address indexed sender, address indexed pid, uint32 role, uint32 weight, string addr, string shard);
-    event DeleteNode(address indexed sender, address indexed pid, string shard);
+    event CreateZone(address indexed sender, bytes32 name);
+    event CreateShard(address indexed sender, bytes32 zone, bytes32 name);
+    event CreateNode(address indexed sender, bytes32 zone, bytes32 shard, address indexed pid, uint32 role, uint32 weight, string addr);
+    event UpdateNode(address indexed sender, bytes32 zone, bytes32 shard, address indexed pid, uint32 role, uint32 weight, string addr);
+    event DeleteNode(address indexed sender, bytes32 zone, bytes32 shard, address indexed pid);
 
-    modifier onlyAppExist(){
-        require(appMap[msg.sender] == true, "app_not_found");
+    modifier onlyAppExist(address app){
+        require(appMap[app] == true, "app_not_found");
         _;
     }
 
-    modifier onlyAppNotExist(){
-        require(appMap[msg.sender] == false, "app_already_exists");
+    modifier onlyAppNotExist(address app){
+        require(appMap[app] == false, "app_already_exists");
         _;
     }
     
-    modifier onlyShardExist(string calldata shardName){
-        require(appMap[msg.sender] == true, "app_not_found");
-        require(shardMap[msg.sender][shardName] == true, "shard_not_found");
+    modifier onlyZoneExist(address app, bytes32 zone){
+        require(appMap[app] == true, "app_not_found");
+        require(zoneMap[app][zone] == true, "zone_not_found");
         _;
     }
 
-    modifier onlyShardNotExist(string calldata shardName){
-        require(appMap[msg.sender] == true, "app_not_found");
-        require(shardMap[msg.sender][shardName] == false, "shard_already_exists");
+    modifier onlyZoneNotExist(address app, bytes32 zone){
+        require(appMap[app] == true, "app_not_found");
+        require(zoneMap[app][zone] == false, "zone_already_exists");
         _;
     }
 
-    modifier onlyNodeExist(address pid, string calldata shardName){
-        require(appMap[msg.sender] == true, "app_not_found");
-        require(shardMap[msg.sender][shardName] == true, "shard_not_found");
-        require(nodeMap[msg.sender][shardName][pid] > 0, "node_not_found");
-        _;
-    }
-    modifier onlyNodeNotExist(address pid, string calldata shardName){
-        require(appMap[msg.sender] == true, "app_not_found");
-        require(shardMap[msg.sender][shardName] == true, "shard_not_found");
-        require(nodeMap[msg.sender][shardName][pid] == 0, "node_already_exists");
+    modifier onlyShardExist(address app, bytes32 zone, bytes32 shard){
+        require(appMap[app] == true, "app_not_found");
+        require(zoneMap[app][zone] == true, "zone_not_found");
+        require(shardMap[app][zone][shard] == true, "shard_not_found");
         _;
     }
 
-    function setFeeToken(address _token)public onlyOwner {
-        feeToken = _token;
+    modifier onlyShardNotExist(address app, bytes32 zone, bytes32 shard){
+        require(appMap[app] == true, "app_not_found");
+        require(zoneMap[app][zone] == true, "zone_not_found");
+        require(shardMap[app][zone][shard] == false, "shard_already_exists");
+        _;
     }
-    function setFeeReceiver(address _receiver)public onlyOwner{
-        feeReceiver = _receiver;
+
+    modifier onlyNodeExist(address app, bytes32 zone, bytes32 shard, address pid){
+        require(appMap[app] == true, "app_not_found");
+        require(zoneMap[app][zone] == true, "zone_not_found");
+        require(shardMap[app][zone][shard] == true, "shard_not_found");
+        require(nodeMap[app][zone][shard][pid] > 0, "node_not_found");
+        _;
+    }
+    modifier onlyNodeNotExist(address app, bytes32 zone, bytes32 shard, address pid){
+        require(appMap[app] == true, "app_not_found");
+        require(zoneMap[app][zone] == true, "zone_not_found");
+        require(shardMap[app][zone][shard] == true, "shard_not_found");
+        require(nodeMap[app][zone][shard][pid] == 0, "node_already_exists");
+        _;
+    }
+
+    function setFeeToken(address _feeToken)public onlyOwner {
+        feeToken = _feeToken;
+    }
+    function setFeeReceiver(address _feeReceiver)public onlyOwner{
+        feeReceiver = _feeReceiver;
     }
 
     function setFeeAmount(uint _feeAmount)public onlyOwner{
         feeAmount = _feeAmount;
     }
 
-    function newApp() public onlyAppNotExist{
+    function newApp() public onlyAppNotExist(msg.sender){
         ERC20Helper.safeTransferFrom(feeToken, msg.sender, feeReceiver, feeAmount);
         appMap[msg.sender] = true;
         apps.push(msg.sender);
         emit NewApp(msg.sender);
     }
 
-    function createShard(string calldata name)public onlyShardNotExist(name){
+    function createZone(bytes32 name)public onlyZoneNotExist(msg.sender, name){
         ERC20Helper.safeTransferFrom(feeToken, msg.sender, feeReceiver, feeAmount);
-        shardMap[msg.sender][name] = true;
-        shards[msg.sender].push(name);
-        emit CreateShard(msg.sender, name);
+        zoneMap[msg.sender][name] = true;
+        zones[msg.sender].push(name);
+        emit CreateZone(msg.sender, name);
     }
 
-    function createNode(address pid, uint32 role, uint32 weight, string calldata addr, string calldata shardName) public onlyNodeNotExist(pid, shardName){
+    function createShard(bytes32 zone, bytes32 name)public onlyShardNotExist(msg.sender, zone, name){
         ERC20Helper.safeTransferFrom(feeToken, msg.sender, feeReceiver, feeAmount);
-        uint index = nodes[msg.sender][shardName].length;
-        nodeMap[msg.sender][shardName][pid] = index + 1;
+        shardMap[msg.sender][zone][name] = true;
+        shards[msg.sender][zone].push(name);
+        emit CreateShard(msg.sender, zone, name);
+    }
+
+    function createNode(bytes32 zone, bytes32 shard, address pid, uint32 role, uint32 weight, string calldata addr) public onlyNodeNotExist(msg.sender, zone, shard, pid){
+        ERC20Helper.safeTransferFrom(feeToken, msg.sender, feeReceiver, feeAmount);
+        uint index = nodes[msg.sender][zone][shard].length;
+        nodeMap[msg.sender][zone][shard][pid] = index + 1;
         Node memory node = Node(pid, role, weight, addr);
-        nodes[msg.sender][shardName].push(node);
-        emit CreateNode(msg.sender, pid, role, weight, addr, shardName);
+        nodes[msg.sender][zone][shard].push(node);
+        emit CreateNode(msg.sender, zone, shard, pid, role, weight, addr);
     }
 
-    function updateNode(address pid, uint32 role, uint32 weight, string calldata addr, string calldata shardName)public onlyNodeExist(pid, shardName) {
+    function updateNode(bytes32 zone, bytes32 shard, address pid, uint32 role, uint32 weight, string calldata addr)public onlyNodeExist(msg.sender, zone, shard, pid) {
         ERC20Helper.safeTransferFrom(feeToken, msg.sender, feeReceiver, feeAmount);
-        uint index = nodeMap[msg.sender][shardName][pid];
-        nodes[msg.sender][shardName][index-1] = Node(pid, role, weight, addr);
-        emit UpdateNode(msg.sender, pid, role, weight, addr, shardName);
+        uint index = nodeMap[msg.sender][zone][shard][pid];
+        nodes[msg.sender][zone][shard][index-1] = Node(pid, role, weight, addr);
+        emit UpdateNode(msg.sender, zone, shard, pid, role, weight, addr);
     }
 
-    function deleteNode(address pid, string calldata shardName)public onlyNodeExist(pid, shardName) {
+    function deleteNode(bytes32 zone, bytes32 shard, address pid)public onlyNodeExist(msg.sender, zone, shard, pid) {
         ERC20Helper.safeTransferFrom(feeToken, msg.sender, feeReceiver, feeAmount);
-        uint index = nodeMap[msg.sender][shardName][pid] - 1;
-        uint nodesLen =  nodes[msg.sender][shardName].length;
+        uint index = nodeMap[msg.sender][zone][shard][pid] - 1;
+        uint nodesLen =  nodes[msg.sender][zone][shard].length;
         if (nodesLen > 1){
-            nodes[msg.sender][shardName][index] = nodes[msg.sender][shardName][nodesLen - 1];
+            nodes[msg.sender][zone][shard][index] = nodes[msg.sender][zone][shard][nodesLen - 1];
         }
-        nodes[msg.sender][shardName].pop();
-        delete nodeMap[msg.sender][shardName][pid];
-        emit DeleteNode(msg.sender, pid, shardName);
+        nodes[msg.sender][zone][shard].pop();
+        delete nodeMap[msg.sender][zone][shard][pid];
+        emit DeleteNode(msg.sender, zone, shard, pid);
     }
 
     function getAppList()public view returns (address[] memory){
         return apps;
     }
     
-    function getShardList()public view onlyAppExist returns(string[] memory){
-        return shards[msg.sender];
+    function getZoneList(address app)public view onlyAppExist(app) returns(bytes32[] memory){
+        return zones[app];
+    }
+    
+    function getShardList(address app, bytes32 zone)public view onlyZoneExist(app, zone) returns(bytes32[] memory){
+        return shards[app][zone];
     }
 
-    function getNodeListByName(string calldata shardName)public view onlyShardExist(shardName) returns(Node[] memory){
-        return nodes[msg.sender][shardName];
+    function getNodeListByName(address app, bytes32 zone, bytes32 shard)public view onlyShardExist(app, zone, shard) returns(Node[] memory){
+        return nodes[app][zone][shard];
     }
 }
